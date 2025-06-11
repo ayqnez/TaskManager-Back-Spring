@@ -23,7 +23,7 @@ public class TaskController {
 
     @GetMapping()
     public ResponseEntity<List<TaskDTO>> getTasks(@RequestParam(required = false) TaskStatus status, Authentication auth) {
-        User user = userRepository.findByUsername(auth.getName()).orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository.findByEmail(auth.getName()).orElseThrow(() -> new RuntimeException("User not found"));
         if (status != null) {
             return ResponseEntity.ok(taskService.getTasksByStatus(user.getId(), status));
         }
@@ -32,21 +32,21 @@ public class TaskController {
 
     @PostMapping()
     public ResponseEntity<Task> createTask(@RequestBody Task task, Authentication auth) {
-        User user = userRepository.findByUsername(auth.getName()).orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository.findByEmail(auth.getName()).orElseThrow(() -> new RuntimeException("User not found"));
         Task newTask = taskService.createTask(task, user.getId());
         return ResponseEntity.ok(newTask);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Task> updateTask(@PathVariable Long id, @RequestBody Task task, Authentication auth) {
-        User user = userRepository.findByUsername(auth.getName()).orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository.findByEmail(auth.getName()).orElseThrow(() -> new RuntimeException("User not found"));
         Task updatedTask = taskService.updateTask(id, task, user.getId());
         return ResponseEntity.ok(updatedTask);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteTask(@PathVariable Long id, Authentication auth) {
-        User user = userRepository.findByUsername(auth.getName()).orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository.findByEmail(auth.getName()).orElseThrow(() -> new RuntimeException("User not found"));
         taskService.deleteTask(id, user.getId());
         return ResponseEntity.ok("Задача успешно удалена");
     }

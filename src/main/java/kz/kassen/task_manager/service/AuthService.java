@@ -22,25 +22,26 @@ public class AuthService {
 
     public AuthResponse login(LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
+                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
         );
 
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String token = jwtUtils.generateToken(userDetails);
 
-        User user = userRepository.findByUsername(userDetails.getUsername()).orElseThrow(() -> new RuntimeException("User not found"));
-        UserDTO userDTO = new UserDTO(user.getId(), user.getUsername());
+        User user = userRepository.findByEmail(userDetails.getUsername()).orElseThrow(() -> new RuntimeException("User not found"));
+        UserDTO userDTO = new UserDTO(user.getId(), user.getUsername(), user.getEmail());
 
         return new AuthResponse(token, userDTO);
     }
 
     public String register(RegisterRequest registerRequest) {
-        if (userRepository.findByUsername(registerRequest.getUsername()).isPresent()) {
+        if (userRepository.findByEmail(registerRequest.getEmail()).isPresent()) {
             throw new IllegalArgumentException("Пользователь уже существует");
         }
 
         User user = User.builder()
                 .username(registerRequest.getUsername())
+                .email(registerRequest.getEmail())
                 .password(passwordEncoder.encode(registerRequest.getPassword()))
                 .build();
 
