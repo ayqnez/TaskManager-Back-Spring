@@ -1,6 +1,7 @@
 package kz.kassen.task_manager.service;
 
 import kz.kassen.task_manager.DTOs.TaskDTO;
+import kz.kassen.task_manager.DTOs.TaskStatsResponse;
 import kz.kassen.task_manager.model.Task;
 import kz.kassen.task_manager.model.TaskStatus;
 import kz.kassen.task_manager.model.User;
@@ -44,6 +45,27 @@ public class TaskService {
                         .updatedAt(task.getUpdatedAt())
                         .build())
                 .toList();
+    }
+
+    public TaskStatsResponse getTaskStats(Long userId) {
+        long totalTasks = taskRepository.countByUserId(userId);
+        if (totalTasks == 0) {
+            return new TaskStatsResponse(0, 0, 0);
+        }
+
+        long done = taskRepository.countByUserIdAndStatus(userId, TaskStatus.done);
+        long inProgress = taskRepository.countByUserIdAndStatus(userId, TaskStatus.in_progress);
+        long todo = taskRepository.countByUserIdAndStatus(userId, TaskStatus.todo);
+
+        return new TaskStatsResponse(
+                calculatePercentage(done, totalTasks),
+                calculatePercentage(inProgress, totalTasks),
+                calculatePercentage(todo, totalTasks)
+        );
+    }
+
+    private int calculatePercentage(long count, long total) {
+        return (int) Math.round((count * 100.0) / total);
     }
 
     public Task createTask(Task task, Long userId) {

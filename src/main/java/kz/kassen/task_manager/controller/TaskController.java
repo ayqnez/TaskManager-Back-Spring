@@ -1,11 +1,13 @@
 package kz.kassen.task_manager.controller;
 
 import kz.kassen.task_manager.DTOs.TaskDTO;
+import kz.kassen.task_manager.DTOs.TaskStatsResponse;
 import kz.kassen.task_manager.model.Task;
 import kz.kassen.task_manager.model.TaskStatus;
 import kz.kassen.task_manager.model.User;
 import kz.kassen.task_manager.repository.UserRepository;
 import kz.kassen.task_manager.service.TaskService;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -28,6 +30,12 @@ public class TaskController {
             return ResponseEntity.ok(taskService.getTasksByStatus(user.getId(), status));
         }
         return ResponseEntity.ok(taskService.getTasks(user.getId()));
+    }
+
+    @GetMapping("/stats")
+    public ResponseEntity<TaskStatsResponse> getTasksResponse(Authentication auth) {
+        User user = userRepository.findByEmail(auth.getName()).orElseThrow(() -> new RuntimeException("User not found"));
+        return ResponseEntity.ok(taskService.getTaskStats(user.getId()));
     }
 
     @PostMapping()
