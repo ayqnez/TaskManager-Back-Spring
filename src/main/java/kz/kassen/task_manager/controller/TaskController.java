@@ -7,7 +7,6 @@ import kz.kassen.task_manager.model.TaskStatus;
 import kz.kassen.task_manager.model.User;
 import kz.kassen.task_manager.repository.UserRepository;
 import kz.kassen.task_manager.service.TaskService;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -36,6 +35,13 @@ public class TaskController {
     public ResponseEntity<TaskStatsResponse> getTasksResponse(Authentication auth) {
         User user = userRepository.findByEmail(auth.getName()).orElseThrow(() -> new RuntimeException("User not found"));
         return ResponseEntity.ok(taskService.getTaskStats(user.getId()));
+    }
+
+    @GetMapping("/latest")
+    public ResponseEntity<List<TaskDTO>> getLatestTasks(Authentication auth,
+                                                        @RequestParam(defaultValue = "3") int limit) {
+        User user = userRepository.findByEmail(auth.getName()).orElseThrow(() -> new RuntimeException("User not found"));
+        return ResponseEntity.ok(taskService.getLatestTasks(user.getId(), limit));
     }
 
     @PostMapping()

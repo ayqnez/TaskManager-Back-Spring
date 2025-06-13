@@ -8,6 +8,7 @@ import kz.kassen.task_manager.model.User;
 import kz.kassen.task_manager.repository.TaskRepository;
 import kz.kassen.task_manager.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -62,6 +63,20 @@ public class TaskService {
                 calculatePercentage(inProgress, totalTasks),
                 calculatePercentage(todo, totalTasks)
         );
+    }
+
+    public List<TaskDTO> getLatestTasks(Long userId, int limit) {
+        return taskRepository.findLatestTasksByUserId(userId, PageRequest.of(0, limit))
+                .stream()
+                .map(task -> TaskDTO.builder()
+                        .id(task.getId())
+                        .title(task.getTitle())
+                        .description(task.getDescription())
+                        .status(task.getStatus())
+                        .createdAt(task.getCreatedAt())
+                        .updatedAt(task.getUpdatedAt())
+                        .build())
+                .toList();
     }
 
     private int calculatePercentage(long count, long total) {
