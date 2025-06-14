@@ -17,7 +17,8 @@ public class JwtUtils {
     private SecretKey secretKey;
 
     private static final String SECRET_STRING = "mySuperSecretKeyThatShouldBeVeryLongForHS256ToWork123456";
-    private static final long EXPIRATION_TIME = 1000 * 60 * 60 * 24; // 24 часа
+    private static final long EXPIRATION_TIME = 1000 * 60; // 15 минут
+    private static final long REFRESH_EXPIRATION_TIME = 1000L * 60 * 60 * 24 * 7; // 7 дней
 
     public JwtUtils() {
         byte[] keyBytes = SECRET_STRING.getBytes(StandardCharsets.UTF_8);
@@ -29,6 +30,15 @@ public class JwtUtils {
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .signWith(secretKey, Jwts.SIG.HS256)
+                .compact();
+    }
+
+    public String generateRefreshToken(UserDetails userDetails) {
+        return Jwts.builder()
+                .setSubject(userDetails.getUsername())
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + REFRESH_EXPIRATION_TIME))
                 .signWith(secretKey, Jwts.SIG.HS256)
                 .compact();
     }
